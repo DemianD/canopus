@@ -26,6 +26,11 @@ func (c *UDPConnection) ObserveResource(resource string) (tok string, err error)
 	req.SetRequestURI(resource)
 	req.GetMessage().AddOption(OptionObserve, 0)
 
+	req.GetMessage().AddOption(OptionContentFormat, MediaTypeJSONVndOmaLwm2m)
+	req.GetMessage().AddOption(OptionAccept, MediaTypeJSONVndOmaLwm2m)
+
+	req.SetMediaType(MediaTypeJSONVndOmaLwm2m)
+
 	resp, err := c.Send(req)
 	tok = string(resp.GetMessage().GetToken())
 
