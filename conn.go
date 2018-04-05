@@ -32,6 +32,11 @@ func (c *UDPConnection) ObserveResource(resource string) (tok string, err error)
 	req.SetMediaType(MediaTypeJSONVndOmaLwm2m)
 
 	resp, err := c.Send(req)
+
+	if err != nil {
+		return "", err
+	}
+
 	tok = string(resp.GetMessage().GetToken())
 
 	return
@@ -162,18 +167,18 @@ func (c *UDPConnection) SendMessage(msg Message) (resp Response, err error) {
 
 	b, err := MessageToBytes(msg)
 	if err != nil {
-		return
+		return nil, err
 	}
 
 	if msg.GetMessageType() == MessageNonConfirmable {
 		go c.Write(b)
 		resp = NewResponse(NewEmptyMessage(msg.GetMessageId()), nil)
-		return
+		return nil, err
 	}
 
 	_, err = c.Write(b)
 	if err != nil {
-		return
+		return nil, err
 	}
 
 	msgBuf := make([]byte, 1500)
@@ -184,12 +189,12 @@ func (c *UDPConnection) SendMessage(msg Message) (resp Response, err error) {
 
 	n, err := c.Read(msgBuf)
 	if err != nil {
-		return
+		return nil, err
 	}
 
 	respMsg, err := BytesToMessage(msgBuf[:n])
 	if err != nil {
-		return
+		return nil, err
 	}
 	resp = NewResponse(respMsg, nil)
 
