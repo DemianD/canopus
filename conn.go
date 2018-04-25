@@ -19,6 +19,7 @@ func MessageSizeAllowed(req Request) bool {
 
 type UDPConnection struct {
 	conn net.Conn
+	open bool
 }
 
 func (c *UDPConnection) ObserveResource(resource string) (tok string, err error) {
@@ -37,6 +38,7 @@ func (c *UDPConnection) ObserveResource(resource string) (tok string, err error)
 		return "", err
 	}
 
+	c.open = true
 	tok = string(resp.GetMessage().GetToken())
 
 	return
@@ -52,17 +54,21 @@ func (c *UDPConnection) CancelObserveResource(resource string, token string) (er
 }
 
 func (c *UDPConnection) StopObserve(ch chan ObserveMessage) {
+	c.open = false
+
 	close(ch)
 }
 
 func (c *UDPConnection) Close() error {
+	c.open = false
+
 	return c.conn.Close()
 }
 
 func (c *UDPConnection) Observe(ch chan ObserveMessage) {
 
 	readBuf := make([]byte, MaxPacketSize)
-	for {
+	for c.open {
 		len, err := c.Read(readBuf)
 		if err == nil {
 			msgBuf := make([]byte, len)
