@@ -56,7 +56,9 @@ func (c *UDPConnection) CancelObserveResource(resource string, token string) (er
 func (c *UDPConnection) StopObserve(ch chan ObserveMessage) {
 	c.open = false
 
-	close(ch)
+	if c.open == false {
+		close(ch)
+	}
 }
 
 func (c *UDPConnection) Close() error {
@@ -69,7 +71,7 @@ func (c *UDPConnection) Observe(ch chan ObserveMessage) {
 
 	readBuf := make([]byte, MaxPacketSize)
 	for c.open {
-		len, err := c.Read(readBuf)
+		len, err := c.Read(readBuf, false)
 		if err == nil {
 			msgBuf := make([]byte, len)
 			copy(msgBuf, readBuf)
@@ -193,7 +195,7 @@ func (c *UDPConnection) SendMessage(msg Message) (resp Response, err error) {
 		return
 	}
 
-	n, err := c.Read(msgBuf)
+	n, err := c.Read(msgBuf, true)
 	if err != nil {
 		return nil, err
 	}
@@ -217,6 +219,17 @@ func (c *UDPConnection) Write(b []byte) (int, error) {
 	return c.conn.Write(b)
 }
 
-func (c *UDPConnection) Read(b []byte) (int, error) {
+func (c *UDPConnection) Read(b []byte, timeout bool) (int, error) {
+
+	if timeout == true {
+		deadline := time.Now().Add(5 * time.Second)
+
+		c.conn.SetReadDeadline(deadline)
+		c.conn.SetWriteDeadline(deadline)
+	} else {
+		c.conn.SetReadDeadline(time.Time{})
+		c.conn.SetWriteDeadline(time.Time{})
+	}
+
 	return c.conn.Read(b)
 }

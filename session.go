@@ -30,7 +30,7 @@ func (s *UDPServerSession) Write(b []byte) (n int, err error) {
 	return
 }
 
-func (s *UDPServerSession) Read(b []byte) (n int, err error) {
+func (s *UDPServerSession) Read(b []byte, _ bool) (n int, err error) {
 	data := <-s.rcvd
 	copy(b, data)
 	return len(data), nil

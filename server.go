@@ -503,7 +503,7 @@ func (s *DefaultCoapServer) GetCookieSecret() []byte {
 
 func (s *DefaultCoapServer) handleSession(session Session) {
 	msgBuf := make([]byte, 1500)
-	n, _ := session.Read(msgBuf)
+	n, _ := session.Read(msgBuf, false)
 
 	msg, err := BytesToMessage(msgBuf[:n])
 	if err != nil {

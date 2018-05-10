@@ -284,7 +284,7 @@ type Session interface {
 	GetConnection() ServerConnection
 	GetAddress() net.Addr
 	Write([]byte) (int, error)
-	Read([]byte) (n int, err error)
+	Read([]byte, bool) (n int, err error)
 	GetServer() CoapServer
 	WriteBuffer([]byte) int
 }
@@ -321,7 +321,7 @@ type Connection interface {
 	Send(req Request) (resp Response, err error)
 
 	Write(b []byte) (n int, err error)
-	Read(b []byte) (n int, err error)
+	Read(b []byte, timeout bool) (n int, err error)
 	Close() error
 }
 

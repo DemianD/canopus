@@ -430,7 +430,7 @@ func (s *DTLSServerSession) Write(b []byte) (int, error) {
 	return int(ret), nil
 }
 
-func (s *DTLSServerSession) Read(b []byte) (n int, err error) {
+func (s *DTLSServerSession) Read(b []byte, _ bool) (n int, err error) {
 	// TODO test if closed?
 	length := len(b)
 	// s.rcvd <- s.buf
@@ -555,7 +555,7 @@ func (c *DTLSConnection) Observe(ch chan ObserveMessage) {
 
 	readBuf := make([]byte, MaxPacketSize)
 	for {
-		len, err := c.Read(readBuf)
+		len, err := c.Read(readBuf, false)
 		if err == nil {
 			msgBuf := make([]byte, len)
 			copy(msgBuf, readBuf)
@@ -682,7 +682,7 @@ func (c *DTLSConnection) sendMessage(msg Message) (resp Response, err error) {
 		return
 	}
 
-	n, err := c.Read(msgBuf)
+	n, err := c.Read(msgBuf, false)
 	if err != nil {
 		return
 	}
@@ -718,7 +718,7 @@ func (c *DTLSConnection) Write(b []byte) (int, error) {
 	return int(ret), nil
 }
 
-func (c *DTLSConnection) Read(b []byte) (int, error) {
+func (c *DTLSConnection) Read(b []byte, _ bool) (int, error) {
 	if atomic.CompareAndSwapInt32(&c.connected, 0, 1) {
 		if err := c.connect(); err != nil {
 			return 0, err
