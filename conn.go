@@ -82,11 +82,11 @@ func (c *UDPConnection) Observe(ch chan ObserveMessage) {
 			}
 			if err != nil {
 				log.Println("Error occured reading UDP", err)
-				close(ch)
+
 			}
 		} else {
 			log.Println("Error occured reading UDP", err)
-			close(ch)
+
 		}
 	}
 }
