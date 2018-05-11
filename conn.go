@@ -57,9 +57,7 @@ func (c *UDPConnection) CancelObserveResource(resource string, token string) (er
 func (c *UDPConnection) StopObserve(ch chan ObserveMessage) {
 	c.open = false
 
-	if c.open == false {
-		close(ch)
-	}
+	close(ch)
 }
 
 func (c *UDPConnection) Close() error {
@@ -78,7 +76,7 @@ func (c *UDPConnection) Observe(ch chan ObserveMessage) {
 			copy(msgBuf, readBuf)
 
 			msg, err := BytesToMessage(msgBuf)
-			if msg.GetOption(OptionObserve) != nil {
+			if msg.GetOption(OptionObserve) != nil && c.open == true {
 				ch <- NewObserveMessage(msg.GetURIPath(), msg.GetPayload(), msg)
 			}
 			if err != nil {
