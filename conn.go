@@ -76,7 +76,14 @@ func (c *UDPConnection) Observe(ch chan ObserveMessage) {
 			copy(msgBuf, readBuf)
 
 			msg, err := BytesToMessage(msgBuf)
+
 			if msg.GetOption(OptionObserve) != nil && c.open == true {
+
+				test2 := NewEmptyMessage(msg.GetMessageId())
+				test, _ := MessageToBytes(test2)
+
+				c.Write(test)
+
 				ch <- NewObserveMessage(msg.GetURIPath(), msg.GetPayload(), msg)
 			}
 			if err != nil {
@@ -191,6 +198,7 @@ func (c *UDPConnection) SendMessage(msg Message) (resp Response, err error) {
 	msgBuf := make([]byte, 1500)
 	if msg.GetMessageType() == MessageAcknowledgment {
 		resp = NewResponse(NewEmptyMessage(msg.GetMessageId()), nil)
+
 		return
 	}
 
